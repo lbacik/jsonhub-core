@@ -1,0 +1,8 @@
+suites:
+  jsonhub_suite:
+    namespace: JsonHub
+    psr4_prefix: JsonHub
+
+extensions:
+  DBorsatto\PhpSpec\DataProvider\DataProviderExtension: ~
+#  FriendsOfPhpSpec\PhpSpec\CodeCoverage\CodeCoverageExtension: ~

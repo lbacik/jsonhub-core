@@ -1,0 +1,22 @@
+{
+  "autoload": {
+    "psr-4": {
+      "JsonHub\\": "src/JsonHub/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "spec\\JsonHub\\": "spec/"
+    }
+
+  },
+  "require": {
+    "lbacik/value-object": "^1.0"
+  },
+  "require-dev": {
+    "phpspec/phpspec": "^7.5",
+    "friends-of-phpspec/phpspec-code-coverage": "^6.3",
+    "squizlabs/php_codesniffer": "^3.9",
+    "dborsatto/phpspec-data-provider-extension": "^1.1"
+  }
+}

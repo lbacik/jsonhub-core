@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="PHP_CodeSniffer" xsi:noNamespaceSchemaLocation="phpcs.xsd">
+    <description>A custom coding standard</description>
+
+    <file>src</file>
+    <file>spec</file>
+
+    <rule ref="PSR12"/>
+
+    <rule ref="PSR1.Methods.CamelCapsMethodName">
+        <exclude-pattern>spec</exclude-pattern>
+    </rule>
+</ruleset>
