@@ -1,4 +1,8 @@
 {
+  "name": "jsonhub/jsonhub-sdk",
+  "description": "JsonHub SDK (https://jsonhub.cloud)",
+  "type": "library",
+  "license": "MIT",
   "autoload": {
     "psr-4": {
       "JsonHub\\": "src/JsonHub/"

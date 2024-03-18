@@ -5,4 +5,10 @@ suites:
 
 extensions:
   DBorsatto\PhpSpec\DataProvider\DataProviderExtension: ~
-#  FriendsOfPhpSpec\PhpSpec\CodeCoverage\CodeCoverageExtension: ~
+  FriendsOfPhpSpec\PhpSpec\CodeCoverage\CodeCoverageExtension:
+    format:
+#      - html
+      - clover
+    output:
+      html: coverage
+      clover: coverage/coverage_phpspec.xml

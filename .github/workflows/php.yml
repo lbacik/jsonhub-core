@@ -2,7 +2,7 @@ name: PHP Composer
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop", "cicd-test" ]
   pull_request:
     branches: [ "main" ]
 
@@ -13,9 +13,15 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
+
+    - name: Setup php
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        coverage: xdebug
+        ini-values: xdebug.mode=coverage
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
@@ -32,8 +38,15 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
+    - name: Check code style
+      run: php vendor/bin/phpcs
 
-    # - name: Run test suite
-    #   run: composer run-script test
+    - name: Run test suite
+      run: php vendor/bin/phpspec run --format=pretty
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4.0.1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: lbacik/jsonhub-core
+        files: ./coverage/coverage_phpspec.xml
