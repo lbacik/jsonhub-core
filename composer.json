@@ -1,6 +1,6 @@
 {
-  "name": "jsonhub/jsonhub-sdk",
-  "description": "JsonHub SDK (https://jsonhub.cloud)",
+  "name": "jsonhub/core",
+  "description": "JsonHub Core (https://jsonhub.cloud)",
   "type": "library",
   "license": "MIT",
   "autoload": {
