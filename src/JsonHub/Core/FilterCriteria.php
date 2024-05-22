@@ -10,10 +10,10 @@ class FilterCriteria
         public string | null $slug = null,
         public string | null $definition = null,
         public string | false | null $parent = null,
-        //        public string | null $owner = null,
+        public string | null $owner = null,
         public bool | null $private = null,
-        int $offset = 0,
-        int $limit = 10,
+        public int $offset = 0,
+        public int $limit = 10,
     ) {
     }
 }
