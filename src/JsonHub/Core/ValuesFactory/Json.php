@@ -20,4 +20,9 @@ class Json extends ValueObject
     {
         json_decode($this->value, flags: JSON_THROW_ON_ERROR);
     }
+
+    public function decode(): object
+    {
+        return json_decode($this->value);
+    }
 }
