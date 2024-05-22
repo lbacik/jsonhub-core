@@ -6,6 +6,7 @@ namespace JsonHub\Core;
 
 use JsonHub\Contracts\Definition;
 use JsonHub\Contracts\DefinitionRepository;
+use JsonHub\Contracts\EntityRepository;
 use JsonHub\Contracts\User;
 use JsonHub\Core\ValuesFactory\DefinitionInputField;
 use JsonHub\Core\ValuesFactory\Definition as DefinitionValues;
@@ -15,11 +16,12 @@ class DefinitionRegistry
 {
     public function __construct(
         private readonly DefinitionRepository $definitionRepository,
+        private readonly EntityRepository $entityRepository,
         private readonly ValuesFactory $valuesFactory,
     ) {
     }
 
-    public function getDefinition(string $definitionId): Definition
+    public function getDefinition(string $definitionId): Definition|null
     {
         return $this->definitionRepository->read($definitionId);
     }
@@ -27,6 +29,11 @@ class DefinitionRegistry
     public function getDefinitions(FilterCriteria $criteria): array
     {
         return $this->definitionRepository->readAll($criteria);
+    }
+
+    public function countDefinitions(FilterCriteria $criteria): int
+    {
+        return $this->definitionRepository->count($criteria);
     }
 
     public function addDefinition(DefinitionValues $definitionValues): Definition
@@ -40,7 +47,7 @@ class DefinitionRegistry
 
         $definition = $this->definitionRepository->read($definitionId);
 
-        if ($definition->getOwner() !== $user) {
+        if ($definition->getOwner()->getId() !== $user->getId()) {
             throw new \InvalidArgumentException('User is not the owner of the definition');
         }
 
@@ -50,7 +57,7 @@ class DefinitionRegistry
 
         if (
             $values->data->isEqual($updatedValues->data) === false
-            && $this->definitionRepository->countEntitiesUsingDefinition($definition) > 0
+            && $this->entityRepository->count(new FilterCriteria(definition: $definition->getId())) > 0
         ) {
             throw new \InvalidArgumentException('Cant update schema - definition is used by entities');
         }
@@ -69,11 +76,15 @@ class DefinitionRegistry
     {
         $definition = $this->definitionRepository->read($definitionId);
 
-        if ($definition->getOwner() !== $user) {
+        if ($definition->getParent() === null)   {
+            throw new \InvalidArgumentException('Root definitions cannot be removed');
+        }
+
+        if ($definition->getOwner()->getId() !== $user->getId()) {
             throw new \InvalidArgumentException('User is not the owner of the definition');
         }
 
-        if ($this->definitionRepository->countEntitiesUsingDefinition($definition) > 0) {
+        if ($this->entityRepository->count(new FilterCriteria(definition: $definition->getId())) > 0) {
             throw new \InvalidArgumentException('Definition is used by entities');
         }
 
