@@ -24,7 +24,7 @@ class Definition extends ValueObject
     #[Invariant]
     public function checkIfParentOwnerIsSameAsDefinitionOwner(): void
     {
-        if ($this->parent !== null && $this->parent->getOwner() !== $this->owner) {
+        if ($this->parent !== null && $this->parent->getOwner()->getId() !== $this->owner->getId()) {
             throw CreateDefinitionException::parentMismatch();
         }
     }
