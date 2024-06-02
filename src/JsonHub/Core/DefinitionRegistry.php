@@ -76,7 +76,7 @@ class DefinitionRegistry
     {
         $definition = $this->definitionRepository->read($definitionId);
 
-        if ($definition->getParent() === null)   {
+        if ($definition->getParent() === null) {
             throw new \InvalidArgumentException('Root definitions cannot be removed');
         }
 
