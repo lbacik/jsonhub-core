@@ -14,6 +14,14 @@ use PhpSpec\ObjectBehavior;
 
 class DefinitionSpec extends ObjectBehavior
 {
+    public function let(
+        User $owner,
+        User $parentOwner,
+    ): void {
+        $owner->getId()->willReturn('user-id');
+        $parentOwner->getId()->willReturn('parent-user-id');
+    }
+
     public function it_is_initializable(
         JsonSchema $jsonSchema,
         Entity $parent,

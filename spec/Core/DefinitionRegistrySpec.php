@@ -7,12 +7,11 @@ namespace spec\JsonHub\Core;
 use JsonHub\Contracts\Definition;
 use JsonHub\Contracts\DefinitionRepository;
 use JsonHub\Contracts\Entity;
+use JsonHub\Contracts\EntityRepository;
 use JsonHub\Contracts\JsonSchemaValidator;
 use JsonHub\Contracts\JsonValidator;
 use JsonHub\Contracts\User;
 use JsonHub\Core\DefinitionRegistry;
-use JsonHub\Core\Exceptions\CreateDefinitionException;
-use JsonHub\Core\Exceptions\CreateJsonSchemaException;
 use JsonHub\Core\FilterCriteria;
 use JsonHub\Core\ValuesFactory;
 use JsonHub\Core\ValuesFactory\DefinitionInputField;
@@ -27,14 +26,21 @@ class DefinitionRegistrySpec extends ObjectBehavior
 
     public function let(
         DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
         JsonValidator $jsonValidator,
         JsonSchemaValidator $jsonSchemaValidator,
+        User $user,
+        User $otherUser,
     ): void {
         $this->valuesFactory = new ValuesFactory(
             $jsonValidator->getWrappedObject(),
             $jsonSchemaValidator->getWrappedObject(),
         );
-        $this->beConstructedWith($definitionRepository, $this->valuesFactory);
+
+        $this->beConstructedWith($definitionRepository, $entityRepository, $this->valuesFactory);
+
+        $user->getId()->willReturn('user-id');
+        $otherUser->getId()->willReturn('other-user-id');
     }
 
     public function it_is_initializable(): void
@@ -78,15 +84,14 @@ class DefinitionRegistrySpec extends ObjectBehavior
 
     public function it_updates_a_definition(
         DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
         JsonSchemaValidator $jsonSchemaValidator,
         User $user,
         Definition $definition,
         Entity $parent,
     ): void {
         $jsonSchemaValidator->isValid(new Json(self::EMPTY_JSON_OBJECT_AS_STRING))->willReturn(true);
-
         $parent->getOwner()->willReturn($user);
-
         $definition->getOwner()->willReturn($user);
         $definition->setSlug(null)->willReturn($definition);
         $definition->setData(self::EMPTY_JSON_OBJECT_AS_STRING)->willReturn($definition);
@@ -94,7 +99,8 @@ class DefinitionRegistrySpec extends ObjectBehavior
         $this->definitionToArrayResult($definition, $parent, $user);
 
         $definitionRepository->read('definition-id')->willReturn($definition);
-        $definitionRepository->countEntitiesUsingDefinition($definition)->willReturn(0);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(0);
+
         $definitionRepository->update($definition)->shouldBeCalled();
 
         $this->updateDefinition(
@@ -108,6 +114,7 @@ class DefinitionRegistrySpec extends ObjectBehavior
 
     public function it_updates_a_definition_all_possible_values(
         DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
         JsonSchemaValidator $jsonSchemaValidator,
         User $user,
         Definition $definition,
@@ -126,7 +133,7 @@ class DefinitionRegistrySpec extends ObjectBehavior
         $this->definitionToArrayResult($definition, $parent, $user);
 
         $definitionRepository->read('definition-id')->willReturn($definition);
-        $definitionRepository->countEntitiesUsingDefinition($definition)->willReturn(0);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(0);
         $definitionRepository->update($definition)->shouldBeCalled();
 
         $this->updateDefinition(
@@ -174,6 +181,7 @@ class DefinitionRegistrySpec extends ObjectBehavior
 
     public function it_throws_exception_during_definition_data_update_when_definition_is_used_by_entities(
         DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
         User $user,
         JsonSchemaValidator $jsonSchemaValidator,
         Definition $definition,
@@ -184,11 +192,12 @@ class DefinitionRegistrySpec extends ObjectBehavior
 
         $parent->getOwner()->willReturn($user);
 
+        $definition->getId()->willReturn('definition-id');
         $definition->getOwner()->willReturn($user);
         $this->definitionToArrayResult($definition, $parent, $user);
 
         $definitionRepository->read('definition-id')->willReturn($definition);
-        $definitionRepository->countEntitiesUsingDefinition($definition)->willReturn(1);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(1);
 
         $this->shouldThrow(\InvalidArgumentException::class)
             ->during('updateDefinition', [
@@ -202,16 +211,40 @@ class DefinitionRegistrySpec extends ObjectBehavior
 
     public function it_removes_a_definition(
         DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
         User $user,
         Definition $definition,
+        Entity $parent,
     ): void {
+        $definition->getId()->willReturn('definition-id');
         $definition->getOwner()->willReturn($user);
+        $definition->getParent()->willReturn($parent);
 
         $definitionRepository->read('definition-id')->willReturn($definition);
-        $definitionRepository->countEntitiesUsingDefinition($definition)->willReturn(0);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(0);
         $definitionRepository->delete($definition)->shouldBeCalled();
 
         $this->removeDefinition($user, 'definition-id');
+    }
+
+    public function it_cannot_removes_a_root_definition(
+        DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
+        User $user,
+        Definition $definition,
+    ): void {
+        $definition->getId()->willReturn('definition-id');
+        $definition->getOwner()->willReturn($user);
+        $definition->getParent()->willReturn(null);
+
+        $definitionRepository->read('definition-id')->willReturn($definition);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(0);
+
+        $this->shouldThrow(\InvalidArgumentException::class)
+            ->during('removeDefinition', [
+                $user,
+                'definition-id'
+            ]);
     }
 
     public function it_throws_exception_during_remove_when_user_is_not_the_owner_of_the_definition(
@@ -219,8 +252,11 @@ class DefinitionRegistrySpec extends ObjectBehavior
         User $user,
         User $otherUser,
         Definition $definition,
+        Entity $parent,
     ) {
         $definition->getOwner()->willReturn($otherUser);
+        $definition->getParent()->willReturn($parent);
+
         $definitionRepository->read('definition-id')->willReturn($definition);
 
         $this->shouldThrow(\InvalidArgumentException::class)
@@ -232,13 +268,17 @@ class DefinitionRegistrySpec extends ObjectBehavior
 
     public function it_throws_exception_during_remove_when_definition_is_used_by_entities(
         DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
         User $user,
         Definition $definition,
+        Entity $parent,
     ) {
+        $definition->getId()->willReturn('definition-id');
         $definition->getOwner()->willReturn($user);
+        $definition->getParent()->willReturn($parent);
 
         $definitionRepository->read('definition-id')->willReturn($definition);
-        $definitionRepository->countEntitiesUsingDefinition($definition)->willReturn(1);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(1);
 
         $this->shouldThrow(\InvalidArgumentException::class)
             ->during('removeDefinition', [
