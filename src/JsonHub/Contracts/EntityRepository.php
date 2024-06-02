@@ -10,7 +10,7 @@ use JsonHub\Core\ValuesFactory\Entity as EntityValues;
 interface EntityRepository
 {
     public function create(EntityValues $values): Entity;
-    public function read(string $entityId): Entity;
+    public function read(string $entityId): Entity|null;
     public function readAll(FilterCriteria $criteria): array;
     public function count(FilterCriteria $criteria): int;
     public function readAllPrivate(FilterCriteria $criteria, User $user): array;

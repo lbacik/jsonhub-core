@@ -28,6 +28,8 @@ class EntityRegistrySpec extends ObjectBehavior
         EntityRepository $entityRepository,
         JsonValidator $jsonValidator,
         JsonSchemaValidator $jsonSchemaValidator,
+        User $user,
+        User $otherUser,
     ): void {
         $this->valuesFactory = new ValuesFactory(
             $jsonValidator->getWrappedObject(),
@@ -35,6 +37,9 @@ class EntityRegistrySpec extends ObjectBehavior
         );
 
         $this->beConstructedWith($entityRepository, $this->valuesFactory);
+
+        $user->getId()->willReturn('user-id');
+        $otherUser->getId()->willReturn('other-user-id');
     }
 
     public function it_is_initializable(): void

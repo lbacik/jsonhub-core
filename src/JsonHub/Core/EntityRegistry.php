@@ -20,13 +20,13 @@ class EntityRegistry
     ) {
     }
 
-    public function getEntity(string $entityId, User | null $user = null): Entity
+    public function getEntity(string $entityId, User|null $user = null): Entity|null
     {
         $entity = $this->entityRepository->read($entityId);
 
         if (
             $entity->isPrivate()
-            && (!$user || $user !== $entity->getOwner())
+            && (!$user || $user->getId() !== $entity->getOwner()->getId())
         ) {
             throw new \InvalidArgumentException('Entity is private');
         }
@@ -47,6 +47,19 @@ class EntityRegistry
         return $this->entityRepository->readAll($criteria);
     }
 
+    public function countEntities(FilterCriteria $criteria, User | null $user = null): int
+    {
+        if ($criteria->private && !$user) {
+            throw new \InvalidArgumentException('User is required to count private entities');
+        }
+
+        if ($criteria->private && $criteria->owner !== $user->getId()) {
+            throw new \InvalidArgumentException('Owner is not the user');
+        }
+
+        return $this->entityRepository->count($criteria);
+    }
+
     public function addEntity(EntityValues $entityValues): Entity
     {
         return $this->entityRepository->create($entityValues);
@@ -57,7 +70,7 @@ class EntityRegistry
         $this->validateEntityToUpdateArrayKeys($toUpdate);
         $entity = $this->entityRepository->read($entityId);
 
-        if ($entity->getOwner() !== $user) {
+        if ($entity->getOwner()->getId() !== $user->getId()) {
             throw new \InvalidArgumentException('User is not the owner of the entity');
         }
 
@@ -80,7 +93,7 @@ class EntityRegistry
     {
         $entity = $this->entityRepository->read($entityId);
 
-        if ($entity->getOwner() !== $user) {
+        if ($entity->getOwner()->getId() !== $user->getId()) {
             throw new \InvalidArgumentException('User is not the owner of the entity');
         }
 

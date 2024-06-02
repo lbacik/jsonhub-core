@@ -29,7 +29,7 @@ class Entity extends ValueObject
     #[Invariant]
     public function checkIfParentOwnerIsSameAsEntityOwner(): void
     {
-        if ($this->parent !== null && $this->parent->getOwner() !== $this->owner) {
+        if ($this->parent !== null && $this->parent->getOwner()->getId() !== $this->owner->getId()) {
             throw CreateEntityException::parentOwnerMismatch();
         }
     }
