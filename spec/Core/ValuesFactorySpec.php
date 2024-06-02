@@ -27,11 +27,16 @@ class ValuesFactorySpec extends ObjectBehavior
     public function let(
         JsonValidator $jsonValidator,
         JsonSchemaValidator $jsonSchemaValidator,
+        User $user,
+        User $otherUser,
     ) {
         $this->beConstructedWith(
             $jsonValidator,
             $jsonSchemaValidator,
         );
+
+        $user->getId()->willReturn('user-id');
+        $otherUser->getId()->willReturn('other-user-id');
     }
 
     public function it_is_initializable(): void

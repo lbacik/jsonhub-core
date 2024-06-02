@@ -47,11 +47,10 @@ readonly class ValuesFactory
     public function createEntity(array $input): Entity
     {
         if (
-            empty($input[EntityInputField::DATA->value])
-            || empty($input[EntityInputField::DEFINITION->value])
+            empty($input[EntityInputField::DEFINITION->value])
             || empty($input[EntityInputField::OWNER->value])
         ) {
-            throw new \InvalidArgumentException('Fields Data, Definition and User are required');
+            throw new \InvalidArgumentException('Fields Definition and User are required');
         }
 
         return new Entity(
