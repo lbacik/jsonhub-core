@@ -114,19 +114,6 @@ class EntityRegistrySpec extends ObjectBehavior
             ->during('getEntities', [$criteria]);
     }
 
-    public function it_requires_user_to_be_the_owner_of_the_private_entities(
-        EntityRepository $entityRepository,
-        User $user,
-    ): void {
-        $criteria = new FilterCriteria(
-            private: true,
-        );
-
-        $entityRepository->readAllPrivate($criteria, $user)->willReturn([]);
-
-        $this->getEntities($criteria, $user)->shouldBeArray();
-    }
-
     public function it_creates_an_entity(
         JsonValidator $jsonValidator,
         EntityRepository $entityRepository,

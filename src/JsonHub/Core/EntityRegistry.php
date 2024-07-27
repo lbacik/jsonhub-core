@@ -36,12 +36,8 @@ class EntityRegistry
 
     public function getEntities(FilterCriteria $criteria, User | null $user = null): array
     {
-        if ($criteria->private) {
-            if (!$user) {
-                throw new \InvalidArgumentException('User is required to get private entities');
-            }
-
-            return $this->entityRepository->readAllPrivate($criteria, $user);
+        if ($criteria->private && !$user) {
+            throw new \InvalidArgumentException('User is required to get private entities');
         }
 
         return $this->entityRepository->readAll($criteria);
