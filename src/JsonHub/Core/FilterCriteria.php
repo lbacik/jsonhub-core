@@ -7,6 +7,7 @@ namespace JsonHub\Core;
 class FilterCriteria
 {
     public function __construct(
+        public string | null $searchString = null,
         public string | null $slug = null,
         public string | null $definition = null,
         public string | false | null $parent = null,
