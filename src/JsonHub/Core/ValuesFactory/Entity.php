@@ -15,13 +15,13 @@ use Sushi\ValueObject\Invariant;
 class Entity extends ValueObject
 {
     public function __construct(
-        public Slug $slug,
-        public Json $data,
-        public Definition $definition,
-        public EntityRecord | null $parent,
-        public User $owner,
-        public bool $private,
-        private JsonValidator $jsonValidator,
+        public readonly Slug $slug,
+        public readonly Json $data,
+        public readonly Definition $definition,
+        public readonly EntityRecord|null $parent,
+        public readonly User $owner,
+        public readonly bool $private,
+        private readonly JsonValidator $jsonValidator,
     ) {
         parent::__construct();
     }

@@ -15,19 +15,19 @@ use JsonHub\Core\ValuesFactory\Slug;
 class EntityRegistry
 {
     public function __construct(
-        private EntityRepository $entityRepository,
-        private ValuesFactory $valuesFactory,
+        private readonly EntityRepository $entityRepository,
+        private readonly ValuesFactory $valuesFactory,
     ) {
     }
 
-    public function getEntity(string $entityId, User|null $user = null): Entity|null
+    public function getEntity(string $entityId, User|null $authenticatedUser = null): Entity|null
     {
         $entity = $this->entityRepository->read($entityId);
 
         if (
             $entity
             && $entity->isPrivate()
-            && (!$user || $user->getId() !== $entity->getOwner()->getId())
+            && (!$authenticatedUser || $authenticatedUser->getId() !== $entity->getOwner()->getId())
         ) {
             throw new \InvalidArgumentException('Entity is private');
         }
@@ -35,24 +35,16 @@ class EntityRegistry
         return $entity;
     }
 
-    public function getEntities(FilterCriteria $criteria, User | null $user = null): array
+    public function getEntities(FilterCriteria $criteria, User|null $authenticatedUser = null): array
     {
-        if ($criteria->private && !$user) {
-            throw new \InvalidArgumentException('User is required to get private entities');
-        }
+        $this->validateFilterCriteria($criteria, $authenticatedUser);
 
         return $this->entityRepository->readAll($criteria);
     }
 
-    public function countEntities(FilterCriteria $criteria, User | null $user = null): int
+    public function countEntities(FilterCriteria $criteria, User|null $authenticatedUser = null): int
     {
-        if ($criteria->private && !$user) {
-            throw new \InvalidArgumentException('User is required to count private entities');
-        }
-
-        if ($criteria->private && $criteria->owner !== $user->getId()) {
-            throw new \InvalidArgumentException('Owner is not the user');
-        }
+        $this->validateFilterCriteria($criteria, $authenticatedUser);
 
         return $this->entityRepository->count($criteria);
     }
@@ -99,6 +91,17 @@ class EntityRegistry
         }
 
         $this->entityRepository->delete($entity);
+    }
+
+    private function validateFilterCriteria(FilterCriteria $criteria, User|null $authenticatedUser): void
+    {
+        if ($criteria->private && !$authenticatedUser) {
+            throw new \InvalidArgumentException('You have to be authenticated to get private entities');
+        }
+
+        if ($criteria->owner && $criteria->owner !== $authenticatedUser?->getId()) {
+            throw new \InvalidArgumentException('You cannot filter entities by other users');
+        }
     }
 
     private function validateEntityToUpdateArrayKeys(array $toUpdate): void
