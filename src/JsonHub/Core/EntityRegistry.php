@@ -25,7 +25,8 @@ class EntityRegistry
         $entity = $this->entityRepository->read($entityId);
 
         if (
-            $entity->isPrivate()
+            $entity
+            && $entity->isPrivate()
             && (!$user || $user->getId() !== $entity->getOwner()->getId())
         ) {
             throw new \InvalidArgumentException('Entity is private');
