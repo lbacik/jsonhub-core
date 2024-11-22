@@ -26,13 +26,17 @@ class DefinitionRegistry
         return $this->definitionRepository->read($definitionId);
     }
 
-    public function getDefinitions(FilterCriteria $criteria): array
+    public function getDefinitions(FilterCriteria $criteria, User|null $authenticatedUser = null): array
     {
+        $this->validateFilterCriteria($criteria, $authenticatedUser);
+
         return $this->definitionRepository->readAll($criteria);
     }
 
-    public function countDefinitions(FilterCriteria $criteria): int
+    public function countDefinitions(FilterCriteria $criteria, User|null $authenticatedUser = null): int
     {
+        $this->validateFilterCriteria($criteria, $authenticatedUser);
+
         return $this->definitionRepository->count($criteria);
     }
 
@@ -89,6 +93,13 @@ class DefinitionRegistry
         }
 
         $this->definitionRepository->delete($definition);
+    }
+
+    private function validateFilterCriteria(FilterCriteria $criteria, User|null $authenticatedUser): void
+    {
+        if ($criteria->owner && $criteria->owner !== $authenticatedUser?->getId()) {
+            throw new \InvalidArgumentException('You cannot filter definitions by other users');
+        }
     }
 
     private function validateDefinitionToUpdateArrayKeys(array $toUpdate): void
