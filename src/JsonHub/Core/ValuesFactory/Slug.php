@@ -10,7 +10,7 @@ use Sushi\ValueObject\Invariant;
 
 class Slug extends ValueObject
 {
-    public const MAX_LENGTH = 64;
+    public const MAX_LENGTH = 32;
 
     public function __construct(
         public string | null $value,
