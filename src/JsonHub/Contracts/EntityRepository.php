@@ -11,7 +11,7 @@ interface EntityRepository
 {
     public function create(EntityValues $values): Entity;
     public function read(string $entityId): Entity|null;
-    public function readAll(FilterCriteria $criteria): array;
+    public function readAll(FilterCriteria $criteria, bool $isSystemQuery = false): array;
     public function count(FilterCriteria $criteria): int;
     public function update(Entity $entity): void;
     public function delete(Entity $entity): void;

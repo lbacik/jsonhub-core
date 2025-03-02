@@ -39,7 +39,7 @@ class EntityRegistry
     {
         $this->validateFilterCriteria($criteria, $authenticatedUser);
 
-        return $this->entityRepository->readAll($criteria);
+        return $this->entityRepository->readAll($criteria, $authenticatedUser?->isSystemUser() ?? false);
     }
 
     public function countEntities(FilterCriteria $criteria, User|null $authenticatedUser = null): int

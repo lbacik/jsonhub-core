@@ -101,7 +101,7 @@ class EntityRegistrySpec extends ObjectBehavior
     {
         $criteria = new FilterCriteria();
 
-        $entityRepository->readAll($criteria)->shouldBeCalled();
+        $entityRepository->readAll($criteria, false)->shouldBeCalled();
         $this->getEntities($criteria)->shouldBeArray();
     }
 

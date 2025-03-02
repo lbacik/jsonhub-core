@@ -7,4 +7,6 @@ namespace JsonHub\Contracts;
 interface User
 {
     public function getId(): string;
+
+    public function isSystemUser(): bool;
 }
