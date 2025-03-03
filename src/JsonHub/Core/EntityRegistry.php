@@ -46,7 +46,7 @@ class EntityRegistry
     {
         $this->validateFilterCriteria($criteria, $authenticatedUser);
 
-        return $this->entityRepository->count($criteria);
+        return $this->entityRepository->count($criteria, $authenticatedUser?->isSystemUser() ?? false);
     }
 
     public function addEntity(EntityValues $entityValues): Entity
