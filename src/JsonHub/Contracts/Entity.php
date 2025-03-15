@@ -16,16 +16,4 @@ interface Entity
     public function getOwner(): User;
     public function setOwner(User $owner): self;
     public function toArray(): array;
-
-//    public function toArray(): array
-//    {
-//        return [
-//            EntityInputField::SLUG->value => $this->slug,
-//            EntityInputField::DATA->value => $this->data,
-//            EntityInputField::DEFINITION->value => $this->definition,
-//            EntityInputField::PARENT->value => $this->parent,
-//            EntityInputField::OWNER->value => $this->owner,
-//            EntityInputField::PRIVATE->value => $this->private,
-//        ];
-//    }
 }

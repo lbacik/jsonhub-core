@@ -9,9 +9,9 @@ use JsonHub\Contracts\Entity;
 use JsonHub\Contracts\JsonValidator;
 use JsonHub\Contracts\User;
 use JsonHub\Core\Exceptions\CreateEntityException;
-use JsonHub\Core\ValuesFactory\Entity as EntityValues;
-use JsonHub\Core\ValuesFactory\Json;
-use JsonHub\Core\ValuesFactory\Slug;
+use JsonHub\Core\Types\Entity as EntityValues;
+use JsonHub\Core\Types\Json;
+use JsonHub\Core\Types\Slug;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 

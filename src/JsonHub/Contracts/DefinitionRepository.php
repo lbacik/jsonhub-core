@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace JsonHub\Contracts;
 
 use JsonHub\Core\FilterCriteria;
-use JsonHub\Core\ValuesFactory\Definition as DefinitionValues;
+use JsonHub\Core\Types\Definition as DefinitionValues;
 
 interface DefinitionRepository
 {

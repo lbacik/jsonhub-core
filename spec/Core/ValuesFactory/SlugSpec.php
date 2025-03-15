@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace spec\JsonHub\Core\ValuesFactory;
 
 use JsonHub\Core\Exceptions\CreateSlugException;
-use JsonHub\Core\ValuesFactory\Slug;
+use JsonHub\Core\Types\Slug;
 use PhpSpec\ObjectBehavior;
 
 class SlugSpec extends ObjectBehavior

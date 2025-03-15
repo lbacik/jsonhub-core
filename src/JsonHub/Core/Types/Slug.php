@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JsonHub\Core\ValuesFactory;
+namespace JsonHub\Core\Types;
 
 use JsonHub\Core\Exceptions\CreateSlugException;
 use Sushi\ValueObject;

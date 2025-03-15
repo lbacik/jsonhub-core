@@ -8,9 +8,9 @@ use JsonHub\Contracts\Definition;
 use JsonHub\Contracts\DefinitionRepository;
 use JsonHub\Contracts\EntityRepository;
 use JsonHub\Contracts\User;
-use JsonHub\Core\ValuesFactory\DefinitionInputField;
-use JsonHub\Core\ValuesFactory\Definition as DefinitionValues;
-use JsonHub\Core\ValuesFactory\Slug;
+use JsonHub\Core\Types\DefinitionInputField;
+use JsonHub\Core\Types\Definition as DefinitionValues;
+use JsonHub\Core\Types\Slug;
 
 class DefinitionRegistry
 {

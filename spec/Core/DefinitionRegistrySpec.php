@@ -13,9 +13,9 @@ use JsonHub\Contracts\JsonValidator;
 use JsonHub\Contracts\User;
 use JsonHub\Core\DefinitionRegistry;
 use JsonHub\Core\FilterCriteria;
-use JsonHub\Core\ValuesFactory;
-use JsonHub\Core\ValuesFactory\DefinitionInputField;
-use JsonHub\Core\ValuesFactory\Json;
+use JsonHub\Core\Types;
+use JsonHub\Core\Types\DefinitionInputField;
+use JsonHub\Core\Types\Json;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 

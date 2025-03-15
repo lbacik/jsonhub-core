@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace spec\JsonHub\Core\ValuesFactory;
 
 use JsonException;
-use JsonHub\Core\ValuesFactory\Json;
+use JsonHub\Core\Types\Json;
 use PhpSpec\ObjectBehavior;
 
 class JsonSpec extends ObjectBehavior

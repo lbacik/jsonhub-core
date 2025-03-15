@@ -12,9 +12,9 @@ use JsonHub\Contracts\JsonValidator;
 use JsonHub\Contracts\User;
 use JsonHub\Core\EntityRegistry;
 use JsonHub\Core\FilterCriteria;
-use JsonHub\Core\ValuesFactory;
-use JsonHub\Core\ValuesFactory\EntityInputField;
-use JsonHub\Core\ValuesFactory\Json;
+use JsonHub\Core\Types;
+use JsonHub\Core\Types\EntityInputField;
+use JsonHub\Core\Types\Json;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JsonHub\Core\ValuesFactory;
+namespace JsonHub\Core\Types;
 
 use Sushi\ValueObject;
 use Sushi\ValueObject\Invariant;

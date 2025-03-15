@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace JsonHub\Contracts;
 
 use JsonHub\Core\FilterCriteria;
-use JsonHub\Core\ValuesFactory\Entity as EntityValues;
+use JsonHub\Core\Types\Entity as EntityValues;
 
 interface EntityRepository
 {

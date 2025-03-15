@@ -6,8 +6,8 @@ namespace spec\JsonHub\Core\ValuesFactory;
 
 use JsonHub\Contracts\JsonSchemaValidator;
 use JsonHub\Core\Exceptions\CreateJsonSchemaException;
-use JsonHub\Core\ValuesFactory\Json;
-use JsonHub\Core\ValuesFactory\JsonSchema;
+use JsonHub\Core\Types\Json;
+use JsonHub\Core\Types\JsonSchema;
 use PhpSpec\ObjectBehavior;
 
 class JsonSchemaSpec extends ObjectBehavior

@@ -7,9 +7,9 @@ namespace spec\JsonHub\Core\ValuesFactory;
 use JsonHub\Contracts\Entity;
 use JsonHub\Contracts\User;
 use JsonHub\Core\Exceptions\CreateDefinitionException;
-use JsonHub\Core\ValuesFactory\Definition;
-use JsonHub\Core\ValuesFactory\JsonSchema;
-use JsonHub\Core\ValuesFactory\Slug;
+use JsonHub\Core\Types\Definition;
+use JsonHub\Core\Types\JsonSchema;
+use JsonHub\Core\Types\Slug;
 use PhpSpec\ObjectBehavior;
 
 class DefinitionSpec extends ObjectBehavior

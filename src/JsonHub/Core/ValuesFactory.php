@@ -7,13 +7,13 @@ namespace JsonHub\Core;
 use JsonHub\Contracts\JsonSchemaValidator;
 use JsonHub\Contracts\JsonValidator;
 use JsonHub\Core\Exceptions\CreateDefinitionException;
-use JsonHub\Core\ValuesFactory\DefinitionInputField;
-use JsonHub\Core\ValuesFactory\Definition;
-use JsonHub\Core\ValuesFactory\EntityInputField;
-use JsonHub\Core\ValuesFactory\Entity;
-use JsonHub\Core\ValuesFactory\Json;
-use JsonHub\Core\ValuesFactory\JsonSchema;
-use JsonHub\Core\ValuesFactory\Slug;
+use JsonHub\Core\Types\DefinitionInputField;
+use JsonHub\Core\Types\Definition;
+use JsonHub\Core\Types\EntityInputField;
+use JsonHub\Core\Types\Entity;
+use JsonHub\Core\Types\Json;
+use JsonHub\Core\Types\JsonSchema;
+use JsonHub\Core\Types\Slug;
 
 readonly class ValuesFactory
 {
