@@ -10,32 +10,42 @@ use PhpSpec\ObjectBehavior;
 
 class JsonSpec extends ObjectBehavior
 {
-    /** @dataProvider initDataProvider */
-    public function it_is_initializable($input): void
+    private const VALID_INPUTS = [
+        '12',
+        '"value"',
+        '{"key": "value"}',
+        '["value"]',
+        'null',
+        'true',
+        'false',
+        '[]',
+        '{}',
+    ];
+
+    private const INVALID_INPUTS = [
+        '',
+        "'invalid'",
+        '{"key": }',
+        '[1, 2',
+    ];
+
+    public function it_is_initializable(): void
     {
-        $this->beConstructedWith($input);
+        $this->beConstructedWith('{}');
         $this->shouldHaveType(Json::class);
     }
 
-    public function initDataProvider(): array
+    public function it_accepts_valid_json(): void
     {
-        return [
-            ['12'],
-            ['"value"'],
-            ['{"key": "value"}'],
-            ['["value"]'],
-            ['null'],
-            ['true'],
-            ['false'],
-            [''],
-            ['[]'],
-            ['{}'],
-        ];
+        foreach (self::VALID_INPUTS as $input) {
+            $this->shouldNotThrow()->during('__construct', [$input]);
+        }
     }
 
-    public function it_is_not_initializable_for_invalid_json()
+    public function it_rejects_invalid_json(): void
     {
-        $this->beConstructedWith("'invalid'");
-        $this->shouldThrow(JsonException::class)->duringInstantiation();
+        foreach (self::INVALID_INPUTS as $input) {
+            $this->shouldThrow(JsonException::class)->during('__construct', [$input]);
+        }
     }
 }

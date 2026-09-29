@@ -4,7 +4,6 @@ suites:
     psr4_prefix: JsonHub
 
 extensions:
-  DBorsatto\PhpSpec\DataProvider\DataProviderExtension: ~
   FriendsOfPhpSpec\PhpSpec\CodeCoverage\CodeCoverageExtension:
     format:
 #      - html
