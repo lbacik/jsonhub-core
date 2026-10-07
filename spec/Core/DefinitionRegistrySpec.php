@@ -127,7 +127,7 @@ class DefinitionRegistrySpec extends ObjectBehavior
         $this->definitionToArrayResult($definition, $parent, $user);
 
         $definitionRepository->read('definition-id')->willReturn($definition);
-        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(0);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), true)->willReturn(0);
 
         $definitionRepository->update($definition)->shouldBeCalled();
 
@@ -161,7 +161,7 @@ class DefinitionRegistrySpec extends ObjectBehavior
         $this->definitionToArrayResult($definition, $parent, $user);
 
         $definitionRepository->read('definition-id')->willReturn($definition);
-        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(0);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), true)->willReturn(0);
         $definitionRepository->update($definition)->shouldBeCalled();
 
         $this->updateDefinition(
@@ -225,7 +225,7 @@ class DefinitionRegistrySpec extends ObjectBehavior
         $this->definitionToArrayResult($definition, $parent, $user);
 
         $definitionRepository->read('definition-id')->willReturn($definition);
-        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(1);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), true)->willReturn(1);
 
         $this->shouldThrow(\InvalidArgumentException::class)
             ->during('updateDefinition', [
@@ -249,7 +249,7 @@ class DefinitionRegistrySpec extends ObjectBehavior
         $definition->getParent()->willReturn($parent);
 
         $definitionRepository->read('definition-id')->willReturn($definition);
-        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(0);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), true)->willReturn(0);
         $definitionRepository->delete($definition)->shouldBeCalled();
 
         $this->removeDefinition($user, 'definition-id');
@@ -266,7 +266,7 @@ class DefinitionRegistrySpec extends ObjectBehavior
         $definition->getParent()->willReturn(null);
 
         $definitionRepository->read('definition-id')->willReturn($definition);
-        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(0);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), true)->willReturn(0);
 
         $this->shouldThrow(\InvalidArgumentException::class)
             ->during('removeDefinition', [
@@ -306,12 +306,126 @@ class DefinitionRegistrySpec extends ObjectBehavior
         $definition->getParent()->willReturn($parent);
 
         $definitionRepository->read('definition-id')->willReturn($definition);
-        $entityRepository->count(new FilterCriteria(definition: 'definition-id'))->willReturn(1);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), true)->willReturn(1);
 
         $this->shouldThrow(\InvalidArgumentException::class)
             ->during('removeDefinition', [
                 $user,
                 'definition-id'
+            ]);
+    }
+
+    public function it_rejects_remove_when_the_only_active_entity_is_private(
+        DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
+        User $user,
+        Definition $definition,
+        Entity $parent,
+    ) {
+        $definition->getId()->willReturn('definition-id');
+        $definition->getOwner()->willReturn($user);
+        $definition->getParent()->willReturn($parent);
+
+        $definitionRepository->read('definition-id')->willReturn($definition);
+        // A non-system query sees only public entities, so it counts 0 here;
+        // the system query covers both visibilities and counts the private entity.
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), false)->shouldNotBeCalled();
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), true)->willReturn(1);
+
+        $this->shouldThrow(new \InvalidArgumentException('Definition is used by entities'))
+            ->during('removeDefinition', [
+                $user,
+                'definition-id'
+            ]);
+    }
+
+    public function it_rejects_remove_when_the_only_active_entity_belongs_to_another_owner(
+        DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
+        User $user,
+        Definition $definition,
+        Entity $parent,
+    ) {
+        $definition->getId()->willReturn('definition-id');
+        $definition->getOwner()->willReturn($user);
+        $definition->getParent()->willReturn($parent);
+
+        $definitionRepository->read('definition-id')->willReturn($definition);
+        // A non-system query is owner-scoped, so it counts 0 here;
+        // the system query covers every owner and counts the foreign entity.
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), false)->shouldNotBeCalled();
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), true)->willReturn(1);
+
+        $this->shouldThrow(new \InvalidArgumentException('Definition is used by entities'))
+            ->during('removeDefinition', [
+                $user,
+                'definition-id'
+            ]);
+    }
+
+    public function it_rejects_schema_update_when_the_only_active_entity_is_private(
+        DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
+        User $user,
+        JsonSchemaValidator $jsonSchemaValidator,
+        Definition $definition,
+        Entity $parent,
+    ): void {
+        $jsonSchemaValidator->isValid(new Json(self::EMPTY_JSON_OBJECT_AS_STRING))->willReturn(true);
+        $jsonSchemaValidator->isValid(new Json('{"foo": "bar"}'))->willReturn(true);
+
+        $parent->getOwner()->willReturn($user);
+
+        $definition->getId()->willReturn('definition-id');
+        $definition->getOwner()->willReturn($user);
+        $this->definitionToArrayResult($definition, $parent, $user);
+
+        $definitionRepository->read('definition-id')->willReturn($definition);
+        // A non-system query sees only public entities, so it counts 0 here;
+        // the system query covers both visibilities and counts the private entity.
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), false)->shouldNotBeCalled();
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), true)->willReturn(1);
+
+        $this->shouldThrow(new \InvalidArgumentException('Cant update schema - definition is used by entities'))
+            ->during('updateDefinition', [
+                $user,
+                'definition-id',
+                [
+                    DefinitionInputField::DATA->value => '{"foo": "bar"}',
+                ]
+            ]);
+    }
+
+    public function it_rejects_schema_update_when_the_only_active_entity_belongs_to_another_owner(
+        DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
+        User $user,
+        JsonSchemaValidator $jsonSchemaValidator,
+        Definition $definition,
+        Entity $parent,
+    ): void {
+        $jsonSchemaValidator->isValid(new Json(self::EMPTY_JSON_OBJECT_AS_STRING))->willReturn(true);
+        $jsonSchemaValidator->isValid(new Json('{"foo": "bar"}'))->willReturn(true);
+
+        $parent->getOwner()->willReturn($user);
+
+        $definition->getId()->willReturn('definition-id');
+        $definition->getOwner()->willReturn($user);
+        $this->definitionToArrayResult($definition, $parent, $user);
+
+        $definitionRepository->read('definition-id')->willReturn($definition);
+        // A non-system query is owner-scoped, so it counts 0 here;
+        // the system query covers every owner and counts the foreign entity.
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), false)->shouldNotBeCalled();
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), true)->willReturn(1);
+
+        $this->shouldThrow(new \InvalidArgumentException('Cant update schema - definition is used by entities'))
+            ->during('updateDefinition', [
+                $user,
+                'definition-id',
+                [
+                    DefinitionInputField::DATA->value => '{"foo": "bar"}',
+                ]
             ]);
     }
 
