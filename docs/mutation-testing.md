@@ -71,10 +71,13 @@ The source directory is only `src/JsonHub/Core`, using `@default` mutators.
 Specs, vendor dependencies and `src/JsonHub/Contracts` interfaces are outside
 that directory. There are no score-driven mutator or method exclusions.
 
-The waiting-room job in `quality.yml` runs on main pushes and PRs, uses PHP 8.4
-with PCOV, and uploads `mutation-reports` even if analysis fails. It is advisory
-and has no dependency relationship with `test.yml`. Scheduled quality runs
-remain reserved for dependency watchers. No MSI threshold is chosen during
+The waiting-room job in `quality.yml` runs only on manual `workflow_dispatch`,
+uses PHP 8.4 with PCOV, and uploads `mutation-reports` even if analysis fails.
+To start it in GitHub, open **Actions → Quality → Run workflow**, select the
+branch, and click **Run workflow**. The manual run executes only mutation
+testing; pushes, PRs and scheduled quality runs execute dependency watchers.
+The mutation job is advisory and has no dependency relationship with
+`test.yml`. No MSI threshold is chosen during
 adoption. Agree thresholds after the baseline is understood, then move the job
 to `test.yml` and remove the advisory copy. Full runs remain necessary for
 changes affecting only specs.

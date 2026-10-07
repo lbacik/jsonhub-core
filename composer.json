@@ -22,7 +22,7 @@
     "phpspec/phpspec": "^8.3",
     "friends-of-phpspec/phpspec-code-coverage": "^7.0",
     "squizlabs/php_codesniffer": "^4.0",
-    "infection/infection": "^0.32.7",
+    "infection/infection": "^0.35.6",
     "infection/phpspec-adapter": "0.3.1"
   },
   "config": {
