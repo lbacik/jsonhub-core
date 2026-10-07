@@ -22,9 +22,11 @@ name: Quality
 # inside it: test.yml is reusable via workflow_call, and inside a called
 # workflow `github.event_name` is still the caller's ("push" for a tag push),
 # so an `if:` cannot tell "called by a release" from "someone pushed a branch".
+# Pushes run only on main, PRs via `pull_request` - so a branch with an open
+# PR is checked once, not twice.
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
   # Watchers only. Off the hour on purpose: GitHub queues scheduled runs and
   # drops them under load, and :00 is the most popular minute. The schedule

@@ -8,11 +8,13 @@ name: Test
 # release workflow (e.g. publishing a GitHub Release from a `v*` tag) can reuse
 # the gate instead of growing a second copy of it that drifts.
 #
-# `branches: ['**']` matches every branch and no tag: the commit a tag points at
-# has already been through this on its branch push.
+# Pushes run only on main and every other change goes through a PR, so a
+# branch with an open PR is checked once (by `pull_request`) instead of twice.
+# Tags are not matched: the commit a tag points at has already been through
+# this on main.
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
   workflow_call:
 
