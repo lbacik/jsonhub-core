@@ -549,7 +549,8 @@ final class Reader
             }
             [$code, $bytes] = $this->parseUtf8Sequence($pointer);
             $this->position += $bytes;
-            $this->emitCodePoint($code, false, $pointer, $out, $text, $sort, substr($this->input, $this->position - $bytes, $bytes));
+            $raw = substr($this->input, $this->position - $bytes, $bytes);
+            $this->emitCodePoint($code, false, $pointer, $out, $text, $sort, $raw);
         }
 
         return ['out' => $out, 'text' => $text, 'sort' => $sort];
