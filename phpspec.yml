@@ -6,8 +6,8 @@ suites:
 extensions:
   FriendsOfPhpSpec\PhpSpec\CodeCoverage\CodeCoverageExtension:
     format:
-#      - html
       - clover
+      - xml
     output:
-      html: coverage
       clover: coverage/coverage_phpspec.xml
+      xml: coverage/phpspec-coverage-xml

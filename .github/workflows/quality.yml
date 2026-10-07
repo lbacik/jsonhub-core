@@ -9,7 +9,7 @@ name: Quality
 #    reaches zero. Once it is green and can be held there it graduates to
 #    test.yml and is deleted from here, not duplicated: an advisory copy of a
 #    gating check reports nothing the gate has not already blocked on.
-#      - (empty - php-8.4 graduated into test.yml)
+#      - mutation testing (baseline measured; thresholds to be agreed)
 #
 # 2. Permanent watcher - red when SOMEONE ELSE acts: an advisory published
 #    against a dependency we did not change, a dependency releasing a new
@@ -47,6 +47,28 @@ env:
   PHP_VERSION: '8.4'
 
 jobs:
+  mutation:
+    name: Mutation testing (waiting room)
+    if: github.event_name != 'schedule'
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: pcov
+      - uses: ramsey/composer-install@v4
+      - name: Run specs and mutation analysis with fresh coverage
+        run: composer mutation
+      - name: Upload mutation and coverage reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mutation-reports
+          path: coverage/
+          if-no-files-found: warn
+
   # Watchers: neutral on a push/PR so unrelated work is not reddened, but
   # allowed to fail on the schedule - a scheduled run that swallows its own
   # failure notifies nobody.

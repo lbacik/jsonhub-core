@@ -1,0 +1,19 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": ["src/JsonHub/Core"],
+        "excludes": ["Contracts"]
+    },
+    "testFramework": "phpspec",
+    "timeout": 10,
+    "threads": 4,
+    "logs": {
+        "text": "coverage/infection.log",
+        "html": "coverage/infection.html",
+        "summary": "coverage/infection-summary.log",
+        "json": "coverage/infection.json"
+    },
+    "mutators": {
+        "@default": true
+    }
+}

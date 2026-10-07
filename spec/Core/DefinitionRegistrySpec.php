@@ -17,6 +17,7 @@ use JsonHub\Core\ValuesFactory;
 use JsonHub\Core\ValuesFactory\DefinitionInputField;
 use JsonHub\Core\ValuesFactory\Json;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
 
 class DefinitionRegistrySpec extends ObjectBehavior
 {
@@ -108,6 +109,45 @@ class DefinitionRegistrySpec extends ObjectBehavior
 
         $definitionRepository->create($definitionValues)->shouldBeCalled();
         $this->addDefinition($definitionValues)->shouldBeAnInstanceOf(Definition::class);
+    }
+
+    public function it_rejects_owner_filters_without_authentication(DefinitionRepository $definitionRepository): void
+    {
+        $criteria = new FilterCriteria(owner: 'user-id');
+        $definitionRepository->readAll(Argument::cetera())->shouldNotBeCalled();
+        $definitionRepository->count(Argument::cetera())->shouldNotBeCalled();
+
+        $this->shouldThrow(\InvalidArgumentException::class)->during('getDefinitions', [$criteria]);
+        $this->shouldThrow(\InvalidArgumentException::class)->during('countDefinitions', [$criteria]);
+    }
+
+    public function it_updates_all_values_when_the_changed_schema_is_unused(
+        DefinitionRepository $definitionRepository,
+        EntityRepository $entityRepository,
+        JsonSchemaValidator $jsonSchemaValidator,
+        Definition $definition,
+        Entity $parent,
+        User $user,
+    ): void {
+        $jsonSchemaValidator->isValid(Argument::type(Json::class))->willReturn(true);
+        $parent->getOwner()->willReturn($user);
+        $definition->getId()->willReturn('definition-id');
+        $definition->getOwner()->willReturn($user);
+        $this->definitionToArrayResult($definition, $parent, $user);
+        $definitionRepository->read('definition-id')->willReturn($definition);
+        $entityRepository->count(new FilterCriteria(definition: 'definition-id'), true)
+            ->willReturn(0)->shouldBeCalledOnce();
+
+        $definition->setSlug('updated')->willReturn($definition)->shouldBeCalledOnce();
+        $definition->setData('{"type":"object"}')->willReturn($definition)->shouldBeCalledOnce();
+        $definition->setParent($parent)->willReturn($definition)->shouldBeCalledOnce();
+        $definitionRepository->update($definition)->shouldBeCalledOnce();
+
+        $this->updateDefinition($user, 'definition-id', [
+            DefinitionInputField::DATA->value => '{"type":"object"}',
+            DefinitionInputField::SLUG->value => 'updated',
+            DefinitionInputField::PARENT->value => $parent,
+        ])->shouldReturn($definition);
     }
 
     public function it_updates_a_definition(

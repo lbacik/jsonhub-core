@@ -21,11 +21,28 @@
   "require-dev": {
     "phpspec/phpspec": "^8.3",
     "friends-of-phpspec/phpspec-code-coverage": "^7.0",
-    "squizlabs/php_codesniffer": "^4.0"
+    "squizlabs/php_codesniffer": "^4.0",
+    "infection/infection": "^0.32.7",
+    "infection/phpspec-adapter": "0.3.1"
   },
   "config": {
+    "allow-plugins": {
+      "infection/extension-installer": true
+    },
     "platform": {
       "php": "8.4"
     }
+  },
+  "scripts": {
+    "test": "phpspec run --no-interaction --format=progress",
+    "mutation": [
+      "Composer\\Config::disableProcessTimeout",
+      "@test",
+      "@mutation:run"
+    ],
+    "mutation:run": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php -d memory_limit=512M vendor/bin/infection --coverage=coverage --no-progress"
+    ]
   }
 }

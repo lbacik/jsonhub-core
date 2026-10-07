@@ -122,6 +122,28 @@ class EntityRegistrySpec extends ObjectBehavior
         $this->countEntities($criteria)->shouldReturn(3);
     }
 
+    public function it_returns_all_entities_for_the_system_user(
+        EntityRepository $entityRepository,
+        Entity $entity,
+        User $user,
+    ): void {
+        $criteria = new FilterCriteria();
+        $user->isSystemUser()->willReturn(true);
+        $entityRepository->readAll($criteria, true)->willReturn([$entity])->shouldBeCalledOnce();
+
+        $this->getEntities($criteria, $user)->shouldReturn([$entity]);
+    }
+
+    public function it_rejects_owner_filters_without_authentication(EntityRepository $entityRepository): void
+    {
+        $criteria = new FilterCriteria(owner: 'user-id');
+        $entityRepository->readAll(Argument::cetera())->shouldNotBeCalled();
+        $entityRepository->count(Argument::cetera())->shouldNotBeCalled();
+
+        $this->shouldThrow(\InvalidArgumentException::class)->during('getEntities', [$criteria]);
+        $this->shouldThrow(\InvalidArgumentException::class)->during('countEntities', [$criteria]);
+    }
+
     public function it_counts_all_entities_for_the_system_user(
         EntityRepository $entityRepository,
         User $user,
@@ -239,6 +261,7 @@ class EntityRegistrySpec extends ObjectBehavior
     ): void {
         $jsonValidator->isValid(new Json(self::EMPTY_JSON_OBJECT_AS_STRING), Argument::type(Json::class))
             ->willReturn(true);
+        $jsonValidator->isValid(new Json('{"updated":true}'), Argument::type(Json::class))->willReturn(true);
 
         $entity->getOwner()->willReturn($user);
         $entity->toArray()->willReturn([
@@ -250,24 +273,23 @@ class EntityRegistrySpec extends ObjectBehavior
         $definition->getData()->willReturn(self::EMPTY_JSON_OBJECT_AS_STRING);
         $parent->getOwner()->willReturn($user);
 
-        $entity->setSlug('slug')->willReturn($entity);
-        $entity->setData(self::EMPTY_JSON_OBJECT_AS_STRING)->willReturn($entity);
-        $entity->setParent($parent)->willReturn($entity);
-        $entity->setPrivate(false)->willReturn($entity);
+        $entity->setSlug('slug')->willReturn($entity)->shouldBeCalledTimes(2);
+        $entity->setData('{"updated":true}')->willReturn($entity)->shouldBeCalledTimes(2);
+        $entity->setParent($parent)->willReturn($entity)->shouldBeCalledTimes(2);
+        $entity->setPrivate(true)->willReturn($entity)->shouldBeCalledTimes(2);
 
         $entityRepository->read('entity-id')->willReturn($entity);
-        $entityRepository->update($entity)->shouldBeCalled();
+        $entityRepository->update($entity)->shouldBeCalledTimes(2);
 
-        $this->updateEntity(
-            $user,
-            'entity-id',
-            [
-                EntityInputField::DATA->value => self::EMPTY_JSON_OBJECT_AS_STRING,
-                EntityInputField::PARENT->value => $parent,
-                EntityInputField::PRIVATE->value => false,
-                EntityInputField::SLUG->value => 'slug',
-            ]
-        )->shouldBeAnInstanceOf(Entity::class);
+        $updates = [
+            EntityInputField::SLUG->value => 'slug',
+            EntityInputField::DATA->value => '{"updated":true}',
+            EntityInputField::PARENT->value => $parent,
+            EntityInputField::PRIVATE->value => true,
+        ];
+        foreach ([$updates, array_reverse($updates, true)] as $toUpdate) {
+            $this->updateEntity($user, 'entity-id', $toUpdate)->shouldReturn($entity);
+        }
     }
 
     public function it_throws_exception_when_updating_entity_with_invalid_field(
