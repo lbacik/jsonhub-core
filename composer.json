@@ -20,7 +20,7 @@
   "require-dev": {
     "phpspec/phpspec": "^8.3",
     "friends-of-phpspec/phpspec-code-coverage": "^7.0",
-    "squizlabs/php_codesniffer": "^3.9"
+    "squizlabs/php_codesniffer": "^4.0"
   },
   "config": {
     "platform": {
