@@ -63,6 +63,34 @@ class DefinitionRegistrySpec extends ObjectBehavior
         $this->getDefinitions($criteria);
     }
 
+    public function it_counts_definitions(DefinitionRepository $definitionRepository): void
+    {
+        $criteria = new FilterCriteria();
+
+        $definitionRepository->count($criteria)->willReturn(3);
+        $this->countDefinitions($criteria)->shouldReturn(3);
+    }
+
+    public function it_returns_definitions_of_the_authenticated_user(
+        DefinitionRepository $definitionRepository,
+        User $user,
+    ): void {
+        $criteria = new FilterCriteria(owner: 'user-id');
+
+        $definitionRepository->readAll($criteria)->shouldBeCalled();
+        $this->getDefinitions($criteria, $user);
+    }
+
+    public function it_does_not_allow_filtering_definitions_by_other_users(User $user): void
+    {
+        $criteria = new FilterCriteria(owner: 'other-user-id');
+
+        $this->shouldThrow(\InvalidArgumentException::class)
+            ->during('getDefinitions', [$criteria, $user]);
+        $this->shouldThrow(\InvalidArgumentException::class)
+            ->during('countDefinitions', [$criteria, $user]);
+    }
+
     public function it_adds_a_definition(
         DefinitionRepository $definitionRepository,
         JsonSchemaValidator $jsonSchemaValidator,

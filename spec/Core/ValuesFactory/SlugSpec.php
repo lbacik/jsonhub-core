@@ -10,51 +10,59 @@ use PhpSpec\ObjectBehavior;
 
 class SlugSpec extends ObjectBehavior
 {
-    /** @dataProvider slugInputProvider */
-    public function it_is_initializable($input, $isValid): void
-    {
-        $this->beConstructedWith($input);
+    private const VALID_INPUTS = [
+        null,
+        'slug',
+        'slug-with-dashes',
+        '123',
+        'slug-',
+        '-slug',
+        'slug--slug',
+        'abcdefghijklmnopqrstuvwxyz012345',
+    ];
 
-        if ($isValid !== true) {
-            $this->shouldThrow(CreateSlugException::class)->duringInstantiation();
-        } else {
-            $this->shouldHaveType(Slug::class);
+    private const INVALID_INPUTS = [
+        '',
+        'Slug',
+        'slug.with.dots',
+        'slug with spaces',
+        'slug_with_underscores',
+        'slug_',
+        'slug-_slug',
+        'slug%',
+        'slug!',
+        'slug?',
+        'slug\\',
+        'slug/',
+        'slug,',
+        'slug:',
+        'slug"',
+        'slug\'',
+        'slug@',
+        'slug~',
+        'slug`',
+        'slug^',
+        'slug-ą',
+        'abcdefghijklmnopqrstuvwxyz0123456',
+    ];
+
+    public function it_is_initializable(): void
+    {
+        $this->beConstructedWith('slug');
+        $this->shouldHaveType(Slug::class);
+    }
+
+    public function it_accepts_valid_input(): void
+    {
+        foreach (self::VALID_INPUTS as $input) {
+            $this->shouldNotThrow()->during('__construct', [$input]);
         }
     }
 
-    public function slugInputProvider(): array
+    public function it_rejects_invalid_input(): void
     {
-        return [
-            [null, true],
-            ['slug', true],
-            ['slug.with.dots', false],
-            ['slug with spaces', false],
-            ['slug_with_underscores', true],
-            ['slug-with-dashes', true],
-            ['slug_with_underscores_and-dashes', true],
-            ['123', true],
-            ['slug%', false],
-            ['slug!', false],
-            ['slug?', false],
-            ['slug\\', false],
-            ['slug/', false],
-            ['slug,', false],
-            ['slug:', false],
-            ['slug"', false],
-            ['slug\'', false],
-            ['slug@', false],
-            ['slug~', false],
-            ['slug`', false],
-            ['slug^', false],
-            ['slug_', true],
-            ['slug-', true],
-            ['slug__', false],
-            ['slug-_slug', true],
-            ['slug_-slug', true],
-            ['slug-_slug_', false],
-            ['slug_-slug-', false],
-            ['slug-ą', false],
-            ['slug-1234567890123456789012345678901234567890123456789012345678901234567890', false],
-        ];
+        foreach (self::INVALID_INPUTS as $input) {
+            $this->shouldThrow(CreateSlugException::class)->during('__construct', [$input]);
+        }
     }
 }
