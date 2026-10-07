@@ -36,7 +36,7 @@ jobs:
   # gets. There is no prefer-lowest leg: the only runtime dependency is
   # lbacik/value-object ^1.0, and a lowest leg would mostly test old dev tools.
   checks:
-    name: Checks (PHP ${{ env.PHP_VERSION }})
+    name: Checks (PHP 8.4)
     runs-on: ubuntu-latest
 
     steps:
