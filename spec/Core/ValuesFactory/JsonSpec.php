@@ -48,4 +48,10 @@ class JsonSpec extends ObjectBehavior
             $this->shouldThrow(JsonException::class)->during('__construct', [$input]);
         }
     }
+
+    public function it_decodes_a_json_object(): void
+    {
+        $this->beConstructedWith('{"key": "value"}');
+        $this->decode()->shouldBeLike((object) ['key' => 'value']);
+    }
 }

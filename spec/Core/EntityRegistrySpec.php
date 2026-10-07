@@ -114,6 +114,35 @@ class EntityRegistrySpec extends ObjectBehavior
             ->during('getEntities', [$criteria]);
     }
 
+    public function it_counts_entities(EntityRepository $entityRepository): void
+    {
+        $criteria = new FilterCriteria();
+
+        $entityRepository->count($criteria, false)->willReturn(3);
+        $this->countEntities($criteria)->shouldReturn(3);
+    }
+
+    public function it_counts_all_entities_for_the_system_user(
+        EntityRepository $entityRepository,
+        User $user,
+    ): void {
+        $criteria = new FilterCriteria();
+        $user->isSystemUser()->willReturn(true);
+
+        $entityRepository->count($criteria, true)->willReturn(5);
+        $this->countEntities($criteria, $user)->shouldReturn(5);
+    }
+
+    public function it_does_not_allow_filtering_entities_by_other_users(User $user): void
+    {
+        $criteria = new FilterCriteria(owner: 'other-user-id');
+
+        $this->shouldThrow(\InvalidArgumentException::class)
+            ->during('getEntities', [$criteria, $user]);
+        $this->shouldThrow(\InvalidArgumentException::class)
+            ->during('countEntities', [$criteria, $user]);
+    }
+
     public function it_creates_an_entity(
         JsonValidator $jsonValidator,
         EntityRepository $entityRepository,
