@@ -31,3 +31,33 @@ _Avoid_: unknown keyword, unsupported keyword
 **Instance-consuming Keyword**:
 A keyword whose subschema applies to a child of the instance rather than to the instance itself (`properties`, `patternProperties`, `additionalProperties`, `items`, `additionalItems`); a reference cycle passing through one is allowed.
 _Avoid_: descending keyword
+
+## Canonical JSON
+
+**Canonical Form**:
+The single byte representation of a JSON value: an RFC 8785 (JCS) subset with sorted members, no whitespace, raw UTF-8, and numbers written by mathematical value.
+_Avoid_: normalized JSON, minified JSON
+
+**Strict Reading**:
+Reading JSON under the new-write rules: duplicate member names, numbers that do not survive a round trip through an IEEE double, integers beyond ±(2^53−1), and invalid strings are rejected.
+_Avoid_: validation, strict parsing
+
+**Legacy Reading**:
+Reading stored JSON that may break the new-write rules without rejecting or altering it; values that pass Strict Reading come out identical to it.
+_Avoid_: lenient parsing, backfill mode
+
+**JSON Value Equality**:
+Two JSON values are equal when their Canonical Forms are byte-identical.
+_Avoid_: deep equality, semantic equality
+
+**Schema Charge**:
+The UTF-8 byte length of a schema's Canonical Form, together with the encoding it was measured under.
+_Avoid_: schema size, schema bytes
+
+**Charge Encoding**:
+Which Canonical Form a Schema Charge was measured under: `1` for the JCS subset, `0` (legacy-lossless) for values only Legacy Reading accepts.
+_Avoid_: charge version, format
+
+**Draft Size Limit**:
+The maximum Schema Charge a Draft may have; the value is owned by the host application and applies only to the current encoding.
+_Avoid_: 1 MB limit, max schema size
