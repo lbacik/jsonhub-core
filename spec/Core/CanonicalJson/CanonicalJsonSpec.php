@@ -76,6 +76,20 @@ class CanonicalJsonSpec extends ObjectBehavior
         $this->assertViolations('{"a":1,"a":2}', true, [['duplicate_member', '/a']]);
     }
 
+    public function it_reads_exponents_containing_nine_in_both_modes(): void
+    {
+        $this->assertStrictBytes('1e-9', '1e-9');
+        $this->assertLegacyBytes('1e-9', '1e-9', ChargeEncoding::Jcs);
+    }
+
+    public function it_preserves_negative_and_fractional_legacy_numbers(): void
+    {
+        $this->assertLegacyBytes('-9007199254740993', '-9007199254740993', ChargeEncoding::Legacy);
+        $this->assertLegacyBytes('0.90000000000000000001', '0.90000000000000000001', ChargeEncoding::Legacy);
+        $this->assertLegacyBytes('1e-999', '1e-999', ChargeEncoding::Legacy);
+        $this->assertStrictBytes('-9007199254740991', '-9007199254740991');
+    }
+
     public function it_detects_duplicates_by_decoded_name(): void
     {
         $this->assertViolations('{"\\u0041":1,"A":2}', true, [['duplicate_member', '/A']]);
@@ -121,6 +135,20 @@ class CanonicalJsonSpec extends ObjectBehavior
     public function it_accepts_paired_surrogates_as_raw_utf8(): void
     {
         $this->assertStrictBytes('"\\ud83d\\ude00"', '"😀"');
+    }
+
+    public function it_preserves_space_and_unicode_encoding_boundaries(): void
+    {
+        $this->assertStrictBytes('" "', '" "');
+        $this->assertStrictBytes('"\\u0080\\u0800\\ud800\\udc00"', '"' . "\u{80}\u{800}\u{10000}" . '"');
+        $this->assertStrictBytes('"' . "\u{10000}\u{3FFFF}" . '"', '"' . "\u{10000}\u{3FFFF}" . '"');
+    }
+
+    public function it_rejects_invalid_utf8_continuations_inside_strings(): void
+    {
+        foreach (["\xC2A", "\xE1A\x80", "\xE1\x80A", "\xF0\x90A\x80", "\xF0\x90\x80A"] as $bytes) {
+            $this->assertViolations('"' . $bytes . '"', true, [['invalid_json', '#1']]);
+        }
     }
 
     public function it_reports_several_violations_together(): void

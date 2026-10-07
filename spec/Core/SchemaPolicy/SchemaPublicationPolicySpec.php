@@ -198,6 +198,41 @@ class SchemaPublicationPolicySpec extends ObjectBehavior
         $this->assertViolations('{"const":1}', [['unsupported_keyword', '/const']]);
     }
 
+    public function it_keeps_specific_root_and_nested_library_violations(
+        SchemaLibraryCheck $library,
+    ): void {
+        $library->check(Argument::any())->willReturn(new SchemaViolations([
+            new SchemaViolation(SchemaViolationCode::InvalidSchema, '', 'Generic failure.'),
+            new SchemaViolation(SchemaViolationCode::InvalidKeywordValue, '', 'Specific root failure.'),
+            new SchemaViolation(SchemaViolationCode::InvalidSchema, '/type', 'Specific nested failure.'),
+        ]));
+        $this->beConstructedWith($library);
+
+        $this->assertViolations(
+            '{"type":42}',
+            [['invalid_keyword_value', ''], ['invalid_schema', '/type']],
+        );
+    }
+
+    public function it_orders_policy_and_library_violations_by_document_then_guard(
+        SchemaLibraryCheck $library,
+    ): void {
+        $schema = new Json('{"const":1,"$schema":"unknown","properties":{"a/b~c":{"if":true}}}');
+        $library->check($schema)->willReturn(new SchemaViolations([
+            new SchemaViolation(SchemaViolationCode::InvalidPattern, '/properties/a~1b~0c/if', 'Invalid pattern.'),
+            new SchemaViolation(SchemaViolationCode::InvalidKeywordValue, '/const', 'Invalid value.'),
+        ]))->shouldBeCalledOnce();
+        $this->beConstructedWith($library);
+
+        $this->assertViolations($schema->value, [
+            ['invalid_keyword_value', '/const'],
+            ['unsupported_keyword', '/const'],
+            ['unsupported_dialect', '/$schema'],
+            ['unsupported_keyword', '/properties/a~1b~0c/if'],
+            ['invalid_pattern', '/properties/a~1b~0c/if'],
+        ]);
+    }
+
     public function it_rejects_an_a_to_b_to_a_cycle(SchemaLibraryCheck $library): void
     {
         $library->check(Argument::cetera())->shouldNotBeCalled();

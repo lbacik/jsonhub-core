@@ -104,6 +104,50 @@ class SchemaSafetyCheckSpec extends ObjectBehavior
         $this->assertViolations('{"$ref":"#"}', [['reference_cycle', '/$ref']]);
     }
 
+    public function it_resolves_only_canonical_in_bounds_array_indices(): void
+    {
+        $this->assertViolations('{"allOf":[{},{}],"$ref":"#/allOf/1"}', []);
+        foreach (['', '01', '-1', '1', 'x'] as $index) {
+            $this->assertViolations(
+                '{"allOf":[{}],"$ref":"#/allOf/' . $index . '"}',
+                [['unresolved_reference', '/$ref']],
+            );
+        }
+    }
+
+    public function it_reports_all_independent_non_consuming_cycles(): void
+    {
+        $this->assertViolations(
+            '{"definitions":{"a/b":{"$ref":"#/definitions/a~1b"},"c":{"$ref":"#/definitions/c"}}}',
+            [['reference_cycle', '/definitions/a~1b/$ref'], ['reference_cycle', '/definitions/c/$ref']],
+        );
+        foreach (['anyOf', 'oneOf'] as $keyword) {
+            $this->assertViolations(
+                '{"' . $keyword . '":[{"$ref":"#"}]}',
+                [['reference_cycle', '/' . $keyword . '/0/$ref']],
+            );
+        }
+    }
+
+    public function it_allows_cycles_through_each_instance_consuming_keyword(): void
+    {
+        foreach (['patternProperties', 'properties'] as $keyword) {
+            $this->assertViolations('{"' . $keyword . '":{"child":{"$ref":"#"}}}', []);
+        }
+        foreach (['additionalProperties', 'additionalItems', 'items'] as $keyword) {
+            $this->assertViolations('{"' . $keyword . '":{"$ref":"#"}}', []);
+        }
+    }
+
+    public function it_applies_the_depth_boundary_inside_data_arrays(): void
+    {
+        $this->assertViolations('{"default":' . str_repeat('[', 62) . '0' . str_repeat(']', 62) . '}', []);
+        $this->assertViolations(
+            '{"default":' . str_repeat('[', 63) . '0' . str_repeat(']', 63) . '}',
+            [['schema_too_deep', '/default' . str_repeat('/0', 63)]],
+        );
+    }
+
     public function it_rejects_an_a_to_b_to_a_cycle(): void
     {
         $schema = '{"definitions":{"a":{"$ref":"#/definitions/b"},"b":{"$ref":"#/definitions/a"}},'
