@@ -9,7 +9,7 @@ name: Quality
 #    reaches zero. Once it is green and can be held there it graduates to
 #    test.yml and is deleted from here, not duplicated: an advisory copy of a
 #    gating check reports nothing the gate has not already blocked on.
-#      - (empty - php-8.4 graduated into test.yml's matrix)
+#      - (empty - php-8.4 graduated into test.yml)
 #
 # 2. Permanent watcher - red when SOMEONE ELSE acts: an advisory published
 #    against a dependency we did not change, a dependency releasing a new
@@ -41,7 +41,7 @@ permissions:
   contents: read
 
 env:
-  # api's production runtime.
+  # The only supported runtime - api runs 8.4 in production.
   PHP_VERSION: '8.4'
 
 jobs:

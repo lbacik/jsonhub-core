@@ -23,47 +23,33 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  # The only supported runtime - api runs 8.4 in production.
+  PHP_VERSION: '8.4'
+
 jobs:
   # No `services:` - the specs are pure unit specs with the repositories mocked
   # through the Contracts interfaces; nothing touches a database or a cache.
-  #
-  # The matrix is the consumers' runtimes, not this repository's (it has none):
-  # front-v1 declares php >=8.2, api runs 8.4 in production.
   #
   # composer.lock is not committed, so every run resolves the newest versions
   # allowed by composer.json - the same thing a consumer's `composer update`
   # gets. There is no prefer-lowest leg: the only runtime dependency is
   # lbacik/value-object ^1.0, and a lowest leg would mostly test old dev tools.
   checks:
-    name: Checks (PHP ${{ matrix.php }})
+    name: Checks (PHP ${{ env.PHP_VERSION }})
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        # Coverage is collected (and uploaded) on one leg only.
-        # phpspec-code-coverage aborts the whole run when no coverage driver is
-        # loaded, so the leg without one passes --no-coverage explicitly.
-        include:
-          - php: '8.2'
-            coverage: none
-            phpspec-args: --no-coverage
-          - php: '8.3'
-            coverage: pcov
-            phpspec-args: ''
-          - php: '8.4'
-            coverage: none
-            phpspec-args: --no-coverage
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Set up PHP ${{ matrix.php }}
+      # phpspec-code-coverage aborts the whole run when no coverage driver is
+      # loaded (even with --no-coverage), so a driver is always set up.
+      - name: Set up PHP ${{ env.PHP_VERSION }}
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
-          coverage: ${{ matrix.coverage }}
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: pcov
 
       - name: Validate composer.json
         run: composer validate --strict
@@ -77,12 +63,11 @@ jobs:
         run: vendor/bin/phpcs
 
       - name: Run specs
-        run: vendor/bin/phpspec run --no-interaction --format=progress ${{ matrix.phpspec-args }}
+        run: vendor/bin/phpspec run --no-interaction --format=progress
 
       # Reporting, not gating: fail_ci_if_error stays false so a Codecov outage
       # (or a fork PR, which receives no CODECOV_TOKEN) cannot redden the gate.
       - name: Upload coverage to Codecov
-        if: matrix.coverage == 'pcov'
         uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
