@@ -15,6 +15,7 @@
   },
   "require": {
     "php": ">=8.4",
+    "ext-mbstring": "*",
     "lbacik/value-object": "^1.0"
   },
   "require-dev": {
