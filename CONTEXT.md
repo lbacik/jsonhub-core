@@ -2,6 +2,40 @@
 
 Pure domain rules of JSON Hub: Definitions, Entities and the policies that decide whether a JSON Schema may be published. No I/O; it returns decisions and never persists them.
 
+## Definition versioning
+
+**Definition**:
+A stable identity with metadata (Owner, slug, Parent Entity) that owns one Definition Draft and an append-only history of Definition Revisions.
+_Avoid_: schema, type
+
+**Definition Revision**:
+An immutable published schema of a Definition, identified by its own UUID and a Revision Number, and validated under one Dialect.
+_Avoid_: version, schema version, snapshot
+
+**Revision Number**:
+The position of a Revision in its Definition's history: a positive integer, starting at 1, with no gaps. It carries no compatibility meaning.
+_Avoid_: version, revision index
+
+**Current Revision**:
+The Revision with the greatest Revision Number; nothing is stored to point at it, and it never moves back to an older Revision.
+_Avoid_: latest version, active revision, head
+
+**Definition Draft**:
+The one private, editable schema of a Definition, based on a Revision and carrying a version number that advances on every effective change; it is **clean** when its schema equals its base Revision's schema.
+_Avoid_: working copy, unpublished revision
+
+**Pin**:
+The Revision an Entity is bound to and validated against; only an Entity Migration changes it.
+_Avoid_: entity version, schema lock
+
+**Root Definition**:
+A system-maintained Definition with neither Owner nor Parent Entity. A Definition whose Owner's account is closed (tombstoned) still has an Owner and is not a Root Definition.
+_Avoid_: system definition, base definition
+
+**Definition Placement**:
+Where a Definition sits in the hierarchy: either an Owner with a Parent Entity of that same Owner, or neither (a Root Definition).
+_Avoid_: ownership, parentage
+
 ## Schema publication
 
 **Dialect**:
