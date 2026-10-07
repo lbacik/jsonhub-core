@@ -61,7 +61,7 @@ class DefinitionRegistry
 
         if (
             $values->data->isEqual($updatedValues->data) === false
-            && $this->entityRepository->count(new FilterCriteria(definition: $definition->getId())) > 0
+            && $this->entityRepository->count(new FilterCriteria(definition: $definition->getId()), true) > 0
         ) {
             throw new \InvalidArgumentException('Cant update schema - definition is used by entities');
         }
@@ -88,7 +88,7 @@ class DefinitionRegistry
             throw new \InvalidArgumentException('User is not the owner of the definition');
         }
 
-        if ($this->entityRepository->count(new FilterCriteria(definition: $definition->getId())) > 0) {
+        if ($this->entityRepository->count(new FilterCriteria(definition: $definition->getId()), true) > 0) {
             throw new \InvalidArgumentException('Definition is used by entities');
         }
 

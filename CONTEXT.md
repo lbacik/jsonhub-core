@@ -61,3 +61,9 @@ _Avoid_: charge version, format
 **Draft Size Limit**:
 The maximum Schema Charge a Draft may have; the value is owned by the host application and applies only to the current encoding.
 _Avoid_: 1 MB limit, max schema size
+
+## Definition lifecycle
+
+**Definition In-use Check**:
+A Definition is in use while any active Entity of any Owner and either visibility references it; logically deleted Entities do not count.
+_Avoid_: usage check
