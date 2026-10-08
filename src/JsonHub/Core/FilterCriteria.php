@@ -18,6 +18,7 @@ class FilterCriteria extends ValueObject
         public bool|null $private = null,
         public int $offset = 0,
         public int $limit = 10,
+        public string|null $definitionRevision = null,
     ) {
         parent::__construct();
     }
