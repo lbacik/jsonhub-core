@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JsonHub\Core\SchemaPolicy;
 
-use JsonHub\Core\ValuesFactory\Json;
+use JsonHub\Core\Types\Json;
 
 /**
  * A decoded candidate schema with its schema positions indexed.

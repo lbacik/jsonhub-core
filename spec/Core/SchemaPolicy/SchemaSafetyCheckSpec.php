@@ -7,7 +7,7 @@ namespace spec\JsonHub\Core\SchemaPolicy;
 use JsonHub\Core\SchemaPolicy\SchemaSafetyCheck;
 use JsonHub\Core\SchemaPolicy\SchemaViolation;
 use JsonHub\Core\SchemaPolicy\SchemaViolations;
-use JsonHub\Core\ValuesFactory\Json;
+use JsonHub\Core\Types\Json;
 use PhpSpec\ObjectBehavior;
 use RuntimeException;
 

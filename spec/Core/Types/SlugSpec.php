@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace spec\JsonHub\Core\ValuesFactory;
+namespace spec\JsonHub\Core\Types;
 
 use JsonHub\Core\Exceptions\CreateSlugException;
 use JsonHub\Core\Types\Slug;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace spec\JsonHub\Core\ValuesFactory;
+namespace spec\JsonHub\Core\Types;
 
 use JsonHub\Contracts\JsonSchemaValidator;
 use JsonHub\Core\Exceptions\CreateJsonSchemaException;

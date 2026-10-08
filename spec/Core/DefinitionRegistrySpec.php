@@ -9,13 +9,13 @@ use JsonHub\Contracts\DefinitionRepository;
 use JsonHub\Contracts\Entity;
 use JsonHub\Contracts\EntityRepository;
 use JsonHub\Contracts\JsonSchemaValidator;
-use JsonHub\Contracts\JsonValidator;
 use JsonHub\Contracts\User;
+use JsonHub\Core\DefinitionFactory;
 use JsonHub\Core\DefinitionRegistry;
 use JsonHub\Core\FilterCriteria;
-use JsonHub\Core\Types;
-use JsonHub\Core\Types\DefinitionInputField;
+use JsonHub\Core\JsonSchemaFactory;
 use JsonHub\Core\Types\Json;
+use JsonHub\Core\Types\Metadata\DefinitionInputField;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -23,22 +23,24 @@ class DefinitionRegistrySpec extends ObjectBehavior
 {
     private const EMPTY_JSON_OBJECT_AS_STRING = '{}';
 
-    private ValuesFactory $valuesFactory;
+    private DefinitionFactory $definitionFactory;
 
     public function let(
         DefinitionRepository $definitionRepository,
         EntityRepository $entityRepository,
-        JsonValidator $jsonValidator,
         JsonSchemaValidator $jsonSchemaValidator,
         User $user,
         User $otherUser,
     ): void {
-        $this->valuesFactory = new ValuesFactory(
-            $jsonValidator->getWrappedObject(),
-            $jsonSchemaValidator->getWrappedObject(),
-        );
+        $jsonSchemaFactory = new JsonSchemaFactory($jsonSchemaValidator->getWrappedObject());
+        $this->definitionFactory = new DefinitionFactory($jsonSchemaFactory);
 
-        $this->beConstructedWith($definitionRepository, $entityRepository, $this->valuesFactory);
+        $this->beConstructedWith(
+            $definitionRepository,
+            $entityRepository,
+            $this->definitionFactory,
+            $jsonSchemaFactory,
+        );
 
         $user->getId()->willReturn('user-id');
         $otherUser->getId()->willReturn('other-user-id');
@@ -101,7 +103,7 @@ class DefinitionRegistrySpec extends ObjectBehavior
         $jsonSchemaValidator->isValid(new Json(self::EMPTY_JSON_OBJECT_AS_STRING))->willReturn(true);
         $entity->getOwner()->willReturn($user);
 
-        $definitionValues = $this->valuesFactory->createDefinition([
+        $definitionValues = $this->definitionFactory->createDefinition([
             DefinitionInputField::DATA->value => self::EMPTY_JSON_OBJECT_AS_STRING,
             DefinitionInputField::OWNER->value => $user->getWrappedObject(),
             DefinitionInputField::PARENT->value => $entity->getWrappedObject(),

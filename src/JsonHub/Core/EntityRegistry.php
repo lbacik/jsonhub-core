@@ -7,16 +7,16 @@ namespace JsonHub\Core;
 use JsonHub\Contracts\Entity;
 use JsonHub\Contracts\EntityRepository;
 use JsonHub\Contracts\User;
-use JsonHub\Core\Types\EntityInputField;
 use JsonHub\Core\Types\Entity as EntityValues;
 use JsonHub\Core\Types\Json;
+use JsonHub\Core\Types\Metadata\EntityInputField;
 use JsonHub\Core\Types\Slug;
 
 class EntityRegistry
 {
     public function __construct(
         private readonly EntityRepository $entityRepository,
-        private readonly ValuesFactory $valuesFactory,
+        private readonly EntityFactory $entityFactory,
     ) {
     }
 
@@ -63,7 +63,7 @@ class EntityRegistry
             throw new \InvalidArgumentException('User is not the owner of the entity');
         }
 
-        $values = $this->valuesFactory->createEntity($entity->toArray());
+        $values = $this->entityFactory->createEntity($entity->toArray());
         $valuesToUpdate = $this->mapEntityValues($toUpdate);
         $updatedValues = $values->set(...$valuesToUpdate);
 

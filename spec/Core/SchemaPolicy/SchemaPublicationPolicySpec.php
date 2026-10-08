@@ -9,7 +9,7 @@ use JsonHub\Core\SchemaPolicy\SchemaPublicationPolicy;
 use JsonHub\Core\SchemaPolicy\SchemaViolation;
 use JsonHub\Core\SchemaPolicy\SchemaViolationCode;
 use JsonHub\Core\SchemaPolicy\SchemaViolations;
-use JsonHub\Core\ValuesFactory\Json;
+use JsonHub\Core\Types\Json;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use RuntimeException;

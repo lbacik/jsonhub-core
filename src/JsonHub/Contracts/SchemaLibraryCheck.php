@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace JsonHub\Contracts;
 
 use JsonHub\Core\SchemaPolicy\SchemaViolations;
-use JsonHub\Core\ValuesFactory\Json;
+use JsonHub\Core\Types\Json;
 
 interface SchemaLibraryCheck
 {

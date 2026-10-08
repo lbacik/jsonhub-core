@@ -7,14 +7,13 @@ namespace spec\JsonHub\Core;
 use JsonHub\Contracts\Definition;
 use JsonHub\Contracts\Entity;
 use JsonHub\Contracts\EntityRepository;
-use JsonHub\Contracts\JsonSchemaValidator;
 use JsonHub\Contracts\JsonValidator;
 use JsonHub\Contracts\User;
+use JsonHub\Core\EntityFactory;
 use JsonHub\Core\EntityRegistry;
 use JsonHub\Core\FilterCriteria;
-use JsonHub\Core\Types;
-use JsonHub\Core\Types\EntityInputField;
 use JsonHub\Core\Types\Json;
+use JsonHub\Core\Types\Metadata\EntityInputField;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -22,21 +21,17 @@ class EntityRegistrySpec extends ObjectBehavior
 {
     private const EMPTY_JSON_OBJECT_AS_STRING = '{}';
 
-    private ValuesFactory $valuesFactory;
+    private EntityFactory $entityFactory;
 
     public function let(
         EntityRepository $entityRepository,
         JsonValidator $jsonValidator,
-        JsonSchemaValidator $jsonSchemaValidator,
         User $user,
         User $otherUser,
     ): void {
-        $this->valuesFactory = new ValuesFactory(
-            $jsonValidator->getWrappedObject(),
-            $jsonSchemaValidator->getWrappedObject(),
-        );
+        $this->entityFactory = new EntityFactory($jsonValidator->getWrappedObject());
 
-        $this->beConstructedWith($entityRepository, $this->valuesFactory);
+        $this->beConstructedWith($entityRepository, $this->entityFactory);
 
         $user->getId()->willReturn('user-id');
         $otherUser->getId()->willReturn('other-user-id');
@@ -177,7 +172,7 @@ class EntityRegistrySpec extends ObjectBehavior
 
         $definition->getData()->willReturn(self::EMPTY_JSON_OBJECT_AS_STRING);
 
-        $entityValues = $this->valuesFactory->createEntity([
+        $entityValues = $this->entityFactory->createEntity([
             EntityInputField::DATA->value => self::EMPTY_JSON_OBJECT_AS_STRING,
             EntityInputField::DEFINITION->value => $definition->getWrappedObject(),
             EntityInputField::OWNER->value => $user->getWrappedObject(),
@@ -201,7 +196,7 @@ class EntityRegistrySpec extends ObjectBehavior
         $definition->getData()->willReturn(self::EMPTY_JSON_OBJECT_AS_STRING);
         $parent->getOwner()->willReturn($user);
 
-        $entityValues = $this->valuesFactory->createEntity([
+        $entityValues = $this->entityFactory->createEntity([
             EntityInputField::DATA->value => self::EMPTY_JSON_OBJECT_AS_STRING,
             EntityInputField::DEFINITION->value => $definition->getWrappedObject(),
             EntityInputField::OWNER->value => $user->getWrappedObject(),

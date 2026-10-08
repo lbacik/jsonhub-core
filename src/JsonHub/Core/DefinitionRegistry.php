@@ -8,8 +8,8 @@ use JsonHub\Contracts\Definition;
 use JsonHub\Contracts\DefinitionRepository;
 use JsonHub\Contracts\EntityRepository;
 use JsonHub\Contracts\User;
-use JsonHub\Core\Types\DefinitionInputField;
 use JsonHub\Core\Types\Definition as DefinitionValues;
+use JsonHub\Core\Types\Metadata\DefinitionInputField;
 use JsonHub\Core\Types\Slug;
 
 class DefinitionRegistry
@@ -17,7 +17,8 @@ class DefinitionRegistry
     public function __construct(
         private readonly DefinitionRepository $definitionRepository,
         private readonly EntityRepository $entityRepository,
-        private readonly ValuesFactory $valuesFactory,
+        private readonly DefinitionFactory $definitionFactory,
+        private readonly JsonSchemaFactory $jsonSchemaFactory,
     ) {
     }
 
@@ -55,7 +56,7 @@ class DefinitionRegistry
             throw new \InvalidArgumentException('User is not the owner of the definition');
         }
 
-        $values = $this->valuesFactory->createDefinition($definition->toArray());
+        $values = $this->definitionFactory->createDefinition($definition->toArray());
         $valuesToUpdate = $this->mapDefinitionValues($toUpdate);
         $updatedValues = $values->set(...$valuesToUpdate);
 
@@ -130,7 +131,7 @@ class DefinitionRegistry
                     ),
                     DefinitionInputField::DATA->value => array_merge(
                         $carry,
-                        [DefinitionInputField::DATA->value => $this->valuesFactory->createJsonSchema($value)]
+                        [DefinitionInputField::DATA->value => $this->jsonSchemaFactory->createJsonSchema($value)]
                     ),
                     default => array_merge($carry, [$key => $value]),
                 };

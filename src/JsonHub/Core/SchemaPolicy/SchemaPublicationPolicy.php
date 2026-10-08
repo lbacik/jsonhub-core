@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace JsonHub\Core\SchemaPolicy;
 
 use JsonHub\Contracts\SchemaLibraryCheck;
-use JsonHub\Core\ValuesFactory\Json;
+use JsonHub\Core\Types\Json;
 use Throwable;
 
 /**
