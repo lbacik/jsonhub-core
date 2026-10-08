@@ -31,4 +31,15 @@ class FilterCriteriaSpec extends ObjectBehavior
         $this->beConstructedWith(null, null, null, null, null, true);
         $this->shouldThrow(\InvalidArgumentException::class)->duringInstantiation();
     }
+
+    public function it_defaults_definition_revision_to_null(): void
+    {
+        $this->definitionRevision->shouldBe(null);
+    }
+
+    public function it_accepts_a_definition_revision_as_the_last_argument(): void
+    {
+        $this->beConstructedWith(null, null, null, null, null, null, 0, 10, 'revision-id');
+        $this->definitionRevision->shouldBe('revision-id');
+    }
 }
