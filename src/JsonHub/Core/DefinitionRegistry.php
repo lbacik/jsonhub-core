@@ -133,7 +133,6 @@ class DefinitionRegistry
                         [DefinitionInputField::DATA->value => $this->valuesFactory->createJsonSchema($value)]
                     ),
                     default => array_merge($carry, [$key => $value]),
-            //                    default => $carry,
                 };
             },
             []
